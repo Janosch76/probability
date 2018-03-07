@@ -86,6 +86,16 @@
             return this.ProbabilityOf(predicate) > 0;
         }
 
+        public Dist<Tuple<T,S>> Prod<S>(Dist<S> distribution)
+        {
+            return this.JoinWith(distribution, (v1, v2) => Tuple.Create(v1, v2));
+        }
+
+        public Dist<R> JoinWith<S,R>(Dist<S> distribution, Func<T,S,R> f)
+        {
+            return Dist<T>.JoinWith<S,R>(this, distribution, f);
+        }
+       
         private static Dist<T> Unit(T value)
         {
             return new Dist<T>(new[] { new PValue<T>(value, 1) });
@@ -104,6 +114,11 @@
         private static Dist<S> Map<S>(Dist<T> distribution, Func<T, S> f)
         {
             return new Dist<S>(distribution.values.Select(v => PValue<T>.Map(f, v)));
+        }
+
+        private static Dist<R> JoinWith<S,R>(Dist<T> distribution1, Dist<S> distribution2, Func<T, S, R> f)
+        {
+            return new Dist<R>(distribution1.SelectMany(v1 => distribution2.Select(v2 => PValue<T>.JoinWith(v1, v2, f))));
         }
 
         private List<PValue<T>> Normalize(IEnumerable<PValue<T>> values)

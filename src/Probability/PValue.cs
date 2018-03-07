@@ -32,5 +32,10 @@
         {
             return new PValue<S>(f(v.Value), v.Probability);
         }
+
+        public static PValue<R> JoinWith<S,R>(PValue<T> v1, PValue<S> v2, Func<T, S, R> f)
+        {
+            return new PValue<R>(f(v1.Value, v2.Value), v1.Probability * v2.Probability);
+        }
     }
 }

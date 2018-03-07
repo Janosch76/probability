@@ -98,5 +98,14 @@
             Assert.AreEqual(false, Dist<int>.Impossible.Any());
         }
 
+        [UnitTest]
+        [TestMethod]
+        public void TestMethod8()
+        {
+            var d = Dist<Coin>.Uniform(Coin.Head, Coin.Tail)
+                .Prod(Dist<Coin>.Uniform(Coin.Head, Coin.Tail));
+            Assert.AreEqual(.25, (double)(decimal)d.ProbabilityOf(v => v.Item1 == Coin.Head && v.Item2 == Coin.Head));
+        }
+
     }
 }
