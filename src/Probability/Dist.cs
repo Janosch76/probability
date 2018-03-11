@@ -44,6 +44,16 @@
             return new Dist<T>(values.Select(v => new PValue<T>(v, new Probability(1.0M / count))));
         }
 
+        public static Dist<T> OneOf(T value1, T value2)
+        {
+            return Dist<T>.OneOf(value1, value2, new Probability(0.5M));
+        }
+
+        public static Dist<T> OneOf(T value1, T value2, Probability bias)
+        {
+            return new Dist<T>(new[] { new PValue<T>(value1, bias), new PValue<T>(value2, new Probability(1M - (decimal)bias)) });
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -61,19 +71,28 @@
                 .Sum(v => (decimal)(v.Probability));
         }
 
-        public Dist<S> Select<S>(Func<T,S> f)
+        public Dist<S> Select<S>(Func<T,S> selector)
         {
-            return Dist<T>.Map<S>(this, f);
+            return Dist<T>.Map<S>(this, selector);
         }
 
-        public Dist<S> SelectMany<S>(Func<T, Dist<S>> f)
+        public Dist<S> SelectMany<S>(Func<T, Dist<S>> selector)
         {
-            return Dist<T>.Bind(this, f);
+            return SelectMany(selector, (v, u) => u);
         }
 
-        public Dist<T> Where(Predicate<T> predicate)
+        public Dist<R> SelectMany<S,R>(Func<T, Dist<S>> selector, Func<T, S, R> resultSelector)
         {
-            return new Dist<T>(this.values.Where(v => predicate(v.Value)));
+            return Dist<T>.Bind(this, v => Dist<S>.Map(selector(v), u => resultSelector(v, u)));
+        }
+
+        public Dist<T> Where(Predicate<T> @event)
+        {
+            var p = (decimal)this.ProbabilityOf(@event);
+            var values = this.values
+                .Where(v => @event(v.Value))
+                .Select(v => new PValue<T>(v.Value, 1M / p * (decimal)v.Probability));
+            return new Dist<T>(values);
         }
 
         public bool Any()
@@ -81,9 +100,9 @@
             return Any(v => true);
         }
 
-        public bool Any(Predicate<T> predicate)
+        public bool Any(Predicate<T> @event)
         {
-            return this.ProbabilityOf(predicate) > 0;
+            return this.ProbabilityOf(@event) > 0;
         }
 
         public Dist<Tuple<T,S>> Prod<S>(Dist<S> distribution)
