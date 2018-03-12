@@ -111,8 +111,8 @@
         [TestMethod]
         public void TestMethod9()
         {
-            var d = Dist<int>.OneOf(1, 2, 0.9M)
-                .Prod(Dist<int>.OneOf(1, 2, 0.9M));
+            var d = Dist<int>.OneOf(1, 2, new Probability(0.9M))
+                .Prod(Dist<int>.OneOf(1, 2, new Probability(0.9M)));
             Assert.AreEqual(.99, (double)(decimal)d.ProbabilityOf(v => v.Item1 == 1 || v.Item2 == 1));
         }
 

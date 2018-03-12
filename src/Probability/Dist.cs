@@ -4,8 +4,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// (Sub-) Distributions
@@ -20,7 +18,12 @@
 
         private Dist(IEnumerable<PValue<T>> values)
         {
-            this.values = Normalize(values);
+            if (values.Sum(v => v.Probability.ToDecimal()) > 1M)
+            {
+                throw new ArgumentOutOfRangeException(nameof(values), "Given probabilities exceed 1.0");
+            }
+
+            this.values = Normalize(values); 
         }
 
         public static Dist<T> operator *(Probability p, Dist<T> distribution)
@@ -66,9 +69,10 @@
 
         public Probability ProbabilityOf(Predicate<T> @event)
         {
-            return this.values
+            var p = this.values
                 .Where(v => @event(v.Value))
-                .Sum(v => (decimal)(v.Probability));
+                .Sum(v => v.Probability);
+            return new Probability(p);
         }
 
         public Dist<S> Select<S>(Func<T,S> selector)
@@ -88,10 +92,10 @@
 
         public Dist<T> Where(Predicate<T> @event)
         {
-            var p = (decimal)this.ProbabilityOf(@event);
+            var p = this.ProbabilityOf(@event);
             var values = this.values
                 .Where(v => @event(v.Value))
-                .Select(v => new PValue<T>(v.Value, 1M / p * (decimal)v.Probability));
+                .Select(v => new PValue<T>(v.Value, new Probability(1M / p * v.Probability)));
             return new Dist<T>(values);
         }
 
@@ -110,6 +114,18 @@
             return this.JoinWith(distribution, (v1, v2) => Tuple.Create(v1, v2));
         }
 
+        // TODO
+        //public Dist<IEnumerable<T>> Repeat(int n)
+        //{
+        //    if (n < 0)
+        //    {
+        //        throw new ArgumentOutOfRangeException(nameof(n));
+        //    }
+
+        //    var dists = Enumerable.Repeat(this, n);
+        //    var d = dists.Aggregate<Dist<T>, Dist<IEnumerable<T>>>(Certainly(new T[0]), )
+        //}
+
         public Dist<R> JoinWith<S,R>(Dist<S> distribution, Func<T,S,R> f)
         {
             return Dist<T>.JoinWith<S,R>(this, distribution, f);
@@ -117,7 +133,7 @@
        
         private static Dist<T> Unit(T value)
         {
-            return new Dist<T>(new[] { new PValue<T>(value, 1) });
+            return new Dist<T>(new[] { new PValue<T>(value, new Probability(1)) });
         }
 
         private static Dist<T> Zero()
@@ -145,7 +161,7 @@
             return values
                 .Where(v => v.Probability > 0)
                 .GroupBy(v => v.Value)
-                .Select(g => new PValue<T>(g.Key, g.Sum(v => (decimal)(v.Probability))))
+                .Select(g => new PValue<T>(g.Key, new Probability(g.Sum(v => v.Probability))))
                 .ToList();
         }
     }
