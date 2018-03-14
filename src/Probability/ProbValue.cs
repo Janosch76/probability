@@ -6,17 +6,17 @@
     /// Represents a value with its associated likelyhood.
     /// </summary>
     /// <typeparam name="T">The element type.</typeparam>
-    public struct PValue<T>
+    public struct ProbValue<T>
     {
         private readonly T value;
         private readonly Probability probability;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PValue{T}"/> struct.
+        /// Initializes a new instance of the <see cref="ProbValue{T}"/> struct.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="probability">The probability.</param>
-        internal PValue(T value, Probability probability)
+        internal ProbValue(T value, Probability probability)
         {
             this.value = value;
             this.probability = probability;
@@ -46,9 +46,9 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static PValue<T> operator *(Probability p, PValue<T> v)
+        public static ProbValue<T> operator *(Probability p, ProbValue<T> v)
         {
-            return new PValue<T>(v.Value, p * v.Probability);
+            return new ProbValue<T>(v.Value, p * v.Probability);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@
         /// <param name="f">The map.</param>
         /// <param name="v">The value.</param>
         /// <returns>The mapped value with its associated likelyhood.</returns>
-        public static PValue<S> Map<S>(Func<T, S> f, PValue<T> v)
+        public static ProbValue<S> Map<S>(Func<T, S> f, ProbValue<T> v)
         {
             return v.Map(f);
         }
@@ -72,7 +72,7 @@
         /// <param name="v2">The second value.</param>
         /// <param name="selector">The selection map.</param>
         /// <returns>The combined value, with the joint probability.</returns>
-        public static PValue<R> Join<S, R>(PValue<T> v1, PValue<S> v2, Func<T, S, R> selector)
+        public static ProbValue<R> Join<S, R>(ProbValue<T> v1, ProbValue<S> v2, Func<T, S, R> selector)
         {
             return v1.JoinWith(v2, selector);
         }
@@ -83,9 +83,9 @@
         /// <typeparam name="S">The result type</typeparam>
         /// <param name="f">The map.</param>
         /// <returns>The mapped value with its associated likelyhood.</returns>
-        public PValue<S> Map<S>(Func<T, S> f)
+        public ProbValue<S> Map<S>(Func<T, S> f)
         {
-            return new PValue<S>(f(this.value), this.probability);
+            return new ProbValue<S>(f(this.value), this.probability);
         }
 
         /// <summary>
@@ -96,9 +96,9 @@
         /// <param name="other">The second.</param>
         /// <param name="selector">The selection map.</param>
         /// <returns>The combined value, with the joint probability.</returns>
-        public PValue<R> JoinWith<S, R>(PValue<S> other, Func<T, S, R> selector)
+        public ProbValue<R> JoinWith<S, R>(ProbValue<S> other, Func<T, S, R> selector)
         {
-            return new PValue<R>(selector(this.value, other.value), this.probability * other.probability);
+            return new ProbValue<R>(selector(this.value, other.value), this.probability * other.probability);
         }
 
         /// <summary>

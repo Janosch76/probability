@@ -35,7 +35,7 @@
         /// </returns>
         public static explicit operator Probability(decimal value)
         {
-            return new Probability(value);
+            return Probability.FromDecimal(value);
         }
 
         /// <summary>
@@ -142,6 +142,44 @@
         }
 
         /// <summary>
+        /// Converts a decimal value to a probability.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A new probability value corresponding to the given decimal value.</returns>
+        public static Probability FromDecimal(decimal value)
+        {
+            return new Probability(value);
+        }
+
+        /// <summary>
+        /// Converts a double value to a probability.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A new probability value corresponding to the given double value.</returns>
+        public static Probability FromDouble(double value)
+        {
+            return Probability.FromDecimal(Convert.ToDecimal(value));
+        }
+
+        /// <summary>
+        /// Converts this instance to a corresponding decimal value.
+        /// </summary>
+        /// <returns>A decimal value representing this instance.</returns>
+        public decimal ToDecimal()
+        {
+            return this.value;
+        }
+
+        /// <summary>
+        /// Converts this instance to a corresponding double value.
+        /// </summary>
+        /// <returns>A double value representing this instance.</returns>
+        public double ToDouble()
+        {
+            return (double)this.value;
+        }
+
+        /// <summary>
         /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
         /// </summary>
         /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
@@ -234,24 +272,6 @@
         public string ToString(string format, IFormatProvider provider)
         {
             return this.value.ToString(format, provider);
-        }
-
-        /// <summary>
-        /// Converts this instance to a corresponding decimal value.
-        /// </summary>
-        /// <returns>A decimal value representing this instance.</returns>
-        public decimal ToDecimal()
-        {
-            return this.value;
-        }
-
-        /// <summary>
-        /// Converts this instance to a corresponding double value.
-        /// </summary>
-        /// <returns>A double value representing this instance.</returns>
-        public double ToDouble()
-        {
-            return (double)this.value;
         }
     }
 }

@@ -50,9 +50,11 @@
   <ItemGroup>
     <Compile Include="Coin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTests.cs" />
+    <Compile Include="Samples\MontyHall.cs" />
+    <Compile Include="Samples\SampleAttribute.cs" />
+    <Compile Include="UnitTests\UnitTests.cs" />
     <Compile Include="TestBase.cs" />
-    <Compile Include="UnitTestAttribute.cs" />
+    <Compile Include="UnitTests\UnitTestAttribute.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

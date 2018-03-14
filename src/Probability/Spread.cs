@@ -50,11 +50,30 @@
         public static Dist<T> Uniform<T>(IList<T> values)
         {
             var count = values.Count;
-            return new Dist<T>(values.Select(v => new PValue<T>(v, new Probability(1.0M / count))));
+            return new Dist<T>(values.Select(v => new ProbValue<T>(v, new Probability(1.0M / count))));
         }
 
         /// <summary>
-        /// A coin toss, assigning equal probabilities to two given values.
+        /// Bernoulli distribution, which takes value 1 with probability p and value 0 with probability 1 − p.
+        /// </summary>
+        /// <param name="p">The probability.</param>
+        /// <returns>Bernoulli distribution with the specified probability.</returns>
+        public static Dist<int> Bernoulli(Probability p)
+        {
+            return Spread.OneOf(1, 0, p);
+        }
+
+        /// <summary>
+        /// Rademacher distribution, which takes values 1 and -1 with probability 0.5 each.
+        /// </summary>
+        /// <returns>Rademacher distribution.</returns>
+        public static Dist<int> Rademacher()
+        {
+            return Spread.OneOf(1, -1);
+        }
+
+        /// <summary>
+        /// Bernoulli distribution, assigning equal probabilities to two given values.
         /// </summary>
         /// <typeparam name="T">The element type</typeparam>
         /// <param name="value1">The first value.</param>
@@ -66,7 +85,7 @@
         }
 
         /// <summary>
-        /// A coin toss, assigning probabilities to two given values according to a given bias.
+        /// Bernoulli distribution, assigning probabilities to two given values according to a given bias.
         /// </summary>
         /// <typeparam name="T">The element type</typeparam>
         /// <param name="value1">The first value.</param>
@@ -75,10 +94,10 @@
         /// <returns>A biased distribution.</returns>
         public static Dist<T> OneOf<T>(T value1, T value2, Probability bias)
         {
-            return new Dist<T>(new[] { new PValue<T>(value1, bias), new PValue<T>(value2, new Probability(1M - bias)) });
+            return new Dist<T>(new[] { new ProbValue<T>(value1, bias), new ProbValue<T>(value2, new Probability(1M - bias)) });
         }
 
-        public static Dist<double> Normal()
+        public static Dist<int> Binomial()
         {
             throw new NotImplementedException();
         }

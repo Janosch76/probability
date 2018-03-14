@@ -1,4 +1,4 @@
-﻿namespace Probability.Tests
+﻿namespace Probability.Tests.UnitTests
 {
     using System;
     using System.IO;
@@ -22,24 +22,6 @@
             Assert.AreEqual(true, p1 <= p2);
             Assert.AreEqual(false, p2 < p1);
             Assert.AreEqual(false, p2 <= p1);
-        }
-
-        [UnitTest]
-        [TestMethod]
-        public void TestMethod1()
-        {
-            var rng = new Random();
-
-            var heads = 0;
-            for (int i = 0; i < 100000; i++)
-            {
-                if (rng.CoinToss(Coin.Head, Coin.Tail) == Coin.Head)
-                {
-                    heads++;
-                }
-            }
-
-            Assert.AreEqual(heads / 100000.0, 0.5, 0.01);
         }
 
         [UnitTest]
@@ -139,70 +121,5 @@
             var d2 = d.Where(v => v > 2);
             Assert.AreEqual(.5, (double)(decimal)d2.ProbabilityOf(v => v == 4));
         }
-
-        private enum Doors { A, B, C }
-        private struct State
-        {
-            public Doors? Prize;
-            public Doors? Selected;
-            public Doors? Opened;
-            public override bool Equals(object obj)
-            {
-                return obj is State && this.Prize.Equals(((State)obj).Prize) && this.Selected.Equals(((State)obj).Selected) && this.Opened.Equals(((State)obj).Opened);
-            }
-            public override int GetHashCode()
-            {
-                return this.Prize.GetHashCode() ^ this.Selected.GetHashCode() ^ this.Opened.GetHashCode();
-            }
-            public override string ToString()
-            {
-                return $"[Prize:{Prize.ToString() ?? "-"}|Selected:{Selected.ToString() ?? "-"}|Opened:{Opened.ToString() ?? "-"}]";
-            }
-        }
-
-        [UnitTest]
-        [TestMethod]
-        public void MontyHall()
-        {
-            var doors = new[] { Doors.A, Doors.B, Doors.C };
-            Func<State, Dist<State>> hidePrize = s =>
-                Spread.Uniform(doors)
-                .Select(d => new State() { Prize = d, Selected = s.Selected, Opened = s.Opened });
-            Func<State, Dist<State>> chooseDoor = s =>
-                Spread.Uniform(doors)
-                .Select(d => new State() { Prize = s.Prize, Selected = d, Opened = s.Opened });
-            Func<State, Dist<State>> revealEmpty = s =>
-                Spread.Uniform(doors.Where(d => d != s.Prize).ToArray())
-                .Select(d => new State() { Prize = s.Prize, Selected = s.Selected, Opened = d });
-
-            Func<State, Dist<State>> keepSelected = s =>
-                Spread.Certainly(s);
-            Func<State, Dist<State>> switchSelected = s =>
-                Spread.Uniform(doors.Where(d => !d .In(s.Opened, s.Selected)).ToArray())
-                    .Select(d => new State() { Prize = s.Prize, Selected = d, Opened = s.Opened });
-
-            Predicate<State> Win = s => s.Selected == s.Prize;
-
-            var state = Spread.Certainly(new State());
-            state = state.SelectMany(hidePrize);
-            state = state.SelectMany(chooseDoor);
-            state = state.SelectMany(revealEmpty);
-            state = state.SelectMany(keepSelected);
-
-            var p = state.ProbabilityOf(Win);
-
-            Func<Func<State, Dist<State>>, Dist<State>> game = strategy =>
-                hidePrize
-                .Then(chooseDoor)
-                .Then(revealEmpty)
-                .Then(strategy)
-                .From(new State());
-
-            var p1 = game(keepSelected).ProbabilityOf(Win);
-            var p2 = game(switchSelected).ProbabilityOf(Win);
-            Assert.IsTrue(p1 < p2);
-
-        }
-
     }
 }
