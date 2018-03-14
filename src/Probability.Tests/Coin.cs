@@ -6,7 +6,7 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    public enum Coin
+    public enum Coin : int
     {
         Head,
         Tail

@@ -72,7 +72,7 @@
         /// <param name="v2">The second value.</param>
         /// <param name="selector">The selection map.</param>
         /// <returns>The combined value, with the joint probability.</returns>
-        public static PValue<R> JoinWith<S, R>(PValue<T> v1, PValue<S> v2, Func<T, S, R> selector)
+        public static PValue<R> Join<S, R>(PValue<T> v1, PValue<S> v2, Func<T, S, R> selector)
         {
             return v1.JoinWith(v2, selector);
         }
@@ -99,6 +99,17 @@
         public PValue<R> JoinWith<S, R>(PValue<S> other, Func<T, S, R> selector)
         {
             return new PValue<R>(selector(this.value, other.value), this.probability * other.probability);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            return $"{this.value}:{this.probability}";
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿namespace Probability
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
+    /// <summary>
+    /// General purpose extension methods
+    /// </summary>
     public static class Extensions
     {
         /// <summary>
@@ -22,7 +22,6 @@
         {
             return value.CompareTo(lower) >= 0 && value.CompareTo(upper) <= 0;
         }
-
 
         /// <summary>
         /// Determines whether a sequence contains a specified element 
@@ -54,6 +53,5 @@
 
             return values.Contains(value);
         }
-
     }
 }

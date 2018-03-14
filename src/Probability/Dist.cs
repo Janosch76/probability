@@ -12,49 +12,41 @@
     /// <seealso cref="System.Collections.Generic.IEnumerable{Probability.PDist{T}}" />
     public class Dist<T> : IEnumerable<PValue<T>>
     {
-        public static readonly Dist<T> Impossible = Dist<T>.Zero();
+        /// <summary>
+        /// The empty distribution over type <see cref="Dist{T}"/>
+        /// </summary>
+        public static readonly Dist<T> Zero = new Dist<T>(new PValue<T>[0]);
 
         private List<PValue<T>> values;
 
-        private Dist(IEnumerable<PValue<T>> values)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Dist{T}"/> class.
+        /// </summary>
+        /// <param name="values">The values.</param>
+        internal Dist(IEnumerable<PValue<T>> values)
+            : this(values, EqualityComparer<T>.Default)
         {
-            if (values.Sum(v => v.Probability.ToDecimal()) > 1M)
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Dist{T}"/> class.
+        /// </summary>
+        /// <param name="values">The values.</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        internal Dist(IEnumerable<PValue<T>> values, IEqualityComparer<T> equalityComparer)
+        {
+            var p = values.Sum(v => v.Probability.ToDecimal());
+            if (decimal.Round(p, 20) > 1M)
             {
-                throw new ArgumentOutOfRangeException(nameof(values), "Given probabilities exceed 1.0");
+                throw new ArgumentOutOfRangeException(nameof(values), $"Given probabilities {p} exceed 1.0");
             }
 
-            this.values = Normalize(values); 
+            this.values = Normalize(values, equalityComparer);
         }
 
         public static Dist<T> operator *(Probability p, Dist<T> distribution)
         {
             return new Dist<T>(distribution.values.Select(v => p * v));
-        }
-
-        public static Dist<T> Certainly(T value)
-        {
-            return Dist<T>.Unit(value);
-        }
-
-        public static Dist<T> Uniform(params T[] values)
-        {
-            return Dist<T>.Uniform(values.ToList());
-        }
-
-        public static Dist<T> Uniform(IList<T> values)
-        {
-            var count = values.Count;
-            return new Dist<T>(values.Select(v => new PValue<T>(v, new Probability(1.0M / count))));
-        }
-
-        public static Dist<T> OneOf(T value1, T value2)
-        {
-            return Dist<T>.OneOf(value1, value2, new Probability(0.5M));
-        }
-
-        public static Dist<T> OneOf(T value1, T value2, Probability bias)
-        {
-            return new Dist<T>(new[] { new PValue<T>(value1, bias), new PValue<T>(value2, new Probability(1M - (decimal)bias)) });
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -75,7 +67,7 @@
             return new Probability(p);
         }
 
-        public Dist<S> Select<S>(Func<T,S> selector)
+        public Dist<S> Select<S>(Func<T, S> selector)
         {
             return Dist<T>.Map<S>(this, selector);
         }
@@ -85,7 +77,7 @@
             return SelectMany(selector, (v, u) => u);
         }
 
-        public Dist<R> SelectMany<S,R>(Func<T, Dist<S>> selector, Func<T, S, R> resultSelector)
+        public Dist<R> SelectMany<S, R>(Func<T, Dist<S>> selector, Func<T, S, R> resultSelector)
         {
             return Dist<T>.Bind(this, v => Dist<S>.Map(selector(v), u => resultSelector(v, u)));
         }
@@ -109,9 +101,9 @@
             return this.ProbabilityOf(@event) > 0;
         }
 
-        public Dist<Tuple<T,S>> Prod<S>(Dist<S> distribution)
+        public Dist<Tuple<T, S>> Prod<S>(Dist<S> distribution)
         {
-            return this.JoinWith(distribution, (v1, v2) => Tuple.Create(v1, v2));
+            return this.JoinWith(distribution, (v1, v2) => Tuple.Create<T, S>(v1, v2));
         }
 
         // TODO
@@ -126,19 +118,29 @@
         //    var d = dists.Aggregate<Dist<T>, Dist<IEnumerable<T>>>(Certainly(new T[0]), )
         //}
 
-        public Dist<R> JoinWith<S,R>(Dist<S> distribution, Func<T,S,R> f)
+        public Dist<R> JoinWith<S, R>(Dist<S> distribution, Func<T, S, R> f)
         {
-            return Dist<T>.JoinWith<S,R>(this, distribution, f);
-        }
-       
-        private static Dist<T> Unit(T value)
-        {
-            return new Dist<T>(new[] { new PValue<T>(value, new Probability(1)) });
+            return Dist<T>.Join<S, R>(this, distribution, f);
         }
 
-        private static Dist<T> Zero()
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
         {
-            return new Dist<T>(new PValue<T>[0]);
+            return string.Join(
+                Environment.NewLine,
+                this.values
+                    .OrderByDescending(v => v.Probability)
+                    .Take(3));
+        }
+
+        public static Dist<T> Unit(T value)
+        {
+            return new Dist<T>(new[] { new PValue<T>(value, new Probability(1)) });
         }
 
         private static Dist<S> Bind<S>(Dist<T> distribution, Func<T, Dist<S>> f)
@@ -151,16 +153,16 @@
             return new Dist<S>(distribution.values.Select(v => PValue<T>.Map(f, v)));
         }
 
-        private static Dist<R> JoinWith<S,R>(Dist<T> distribution1, Dist<S> distribution2, Func<T, S, R> f)
+        private static Dist<R> Join<S, R>(Dist<T> distribution1, Dist<S> distribution2, Func<T, S, R> f)
         {
-            return new Dist<R>(distribution1.SelectMany(v1 => distribution2.Select(v2 => PValue<T>.JoinWith(v1, v2, f))));
+            return new Dist<R>(distribution1.SelectMany(v1 => distribution2.Select(v2 => v1.JoinWith(v2, f))));
         }
 
-        private List<PValue<T>> Normalize(IEnumerable<PValue<T>> values)
+        private List<PValue<T>> Normalize(IEnumerable<PValue<T>> values, IEqualityComparer<T> comparer)
         {
             return values
                 .Where(v => v.Probability > 0)
-                .GroupBy(v => v.Value)
+                .GroupBy(v => v.Value, comparer)
                 .Select(g => new PValue<T>(g.Key, new Probability(g.Sum(v => v.Probability))))
                 .ToList();
         }
