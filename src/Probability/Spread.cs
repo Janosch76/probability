@@ -97,9 +97,53 @@
             return new Dist<T>(new[] { new ProbValue<T>(value1, bias), new ProbValue<T>(value2, new Probability(1M - bias)) });
         }
 
-        public static Dist<int> Binomial()
+        /// <summary>
+        /// Binomial distribution with (discrete probability distribution of the number of successes in a sequence of independent yes/no experiments).
+        /// </summary>
+        /// <param name="experiments">The number of experiments.</param>
+        /// <returns>Binomial distribution for the given parameters.</returns>
+        public static Dist<int> Binomial(int experiments)
         {
-            throw new NotImplementedException();
+            return Spread.Binomial(experiments, new Probability(.5M));
+        }
+
+        /// <summary>
+        /// Binomial distribution with (discrete probability distribution of the number of successes in a sequence of independent yes/no experiments).
+        /// </summary>
+        /// <param name="experiments">The number of experiments.</param>
+        /// <param name="prob">The probability of a successful experiment.</param>
+        /// <returns>Binomial distribution for the given parameters.</returns>
+        public static Dist<int> Binomial(int experiments, Probability prob)
+        {
+            if (experiments < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(experiments));
+            }
+
+            var binomials = new int[experiments + 1];
+            binomials[0] = binomials[experiments] = 1;
+            for (int k = 1; k < (experiments / 2) + 1; k++)
+            {
+                binomials[k] = binomials[experiments - k] = binomials[k - 1] * (experiments + 1 - k) / k;
+            }
+
+            var p = new Probability[experiments + 1];
+            p[0] = new Probability(1M);
+            for (int k = 1; k <= experiments; k++)
+            {
+                p[k] = p[k - 1] * prob;
+            }
+
+            var q = new Probability[experiments + 1];
+            q[0] = new Probability(1M);
+            for (int k = 1; k <= experiments; k++)
+            {
+                q[k] = q[k - 1] * prob;
+            }
+
+            var values = Enumerable.Range(0, experiments + 1)
+                .Select(k => new ProbValue<int>(k, new Probability(binomials[k] * p[k] * q[experiments - k])));
+            return new Dist<int>(values);
         }
     }
 }

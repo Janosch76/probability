@@ -121,5 +121,26 @@
             var d2 = d.Where(v => v > 2);
             Assert.AreEqual(.5, (double)(decimal)d2.ProbabilityOf(v => v == 4));
         }
+
+        [UnitTest]
+        [TestMethod]
+        public void BinomialDistribution2()
+        {
+            var d = Spread.Binomial(2, new Probability(.5M));
+
+            Assert.AreEqual(.25, d.ProbabilityOf(k => k == 0).ToDouble());
+            Assert.AreEqual(.5, d.ProbabilityOf(k => k == 1).ToDouble());
+            Assert.AreEqual(.25, d.ProbabilityOf(k => k == 2).ToDouble());
+        }
+
+        [UnitTest]
+        [TestMethod]
+        public void BinomialDistribution0()
+        {
+            var d = Spread.Binomial(0, new Probability(.5M));
+
+            Assert.AreEqual(1, d.ProbabilityOf(k => k == 0).ToDouble());
+            Assert.AreEqual(0, d.ProbabilityOf(k => k != 0).ToDouble());
+        }
     }
 }

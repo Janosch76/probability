@@ -45,7 +45,9 @@
     <Compile Include="ProbValue.cs" />
     <Compile Include="Probability.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Spread.cs" />
+    <Compile Include="Spread.cs">
+      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Transitions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
