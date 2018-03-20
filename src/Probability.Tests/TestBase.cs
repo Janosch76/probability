@@ -39,5 +39,30 @@
                 typeof(T).Name);
             return null;
         }
+
+        public static void AssertEqualProbabilities(Probability expected, Probability actual)
+        {
+            TestBase.AssertEqualProbabilities(expected.ToDecimal(), actual);
+        }
+
+        public static void AssertEqualProbabilities(decimal expected, Probability actual)
+        {
+            Assert.AreEqual(expected, actual);
+        }
+
+        public static void AssertEqualProbabilities(Probability expected, Probability actual, double delta)
+        {
+            TestBase.AssertEqualProbabilities(expected.ToDouble(), actual, delta);
+        }
+
+        public static void AssertEqualProbabilities(double expected, Probability actual)
+        {
+            AssertEqualProbabilities(expected, actual, 0);
+        }
+
+        public static void AssertEqualProbabilities(double expected, Probability actual, double delta)
+        {
+            Assert.AreEqual(expected, actual.ToDouble(), delta);
+        }
     }
 }

@@ -27,6 +27,22 @@
         }
 
         /// <summary>
+        /// Gets a probability for an event that is impossible.
+        /// </summary>
+        public static Probability Impossible
+        {
+            get { return Probability.FromDecimal(0); }
+        }
+
+        /// <summary>
+        /// Gets the probability for an event that is certain.
+        /// </summary>
+        public static Probability Certain
+        {
+            get { return Probability.FromDecimal(1); }
+        }
+
+        /// <summary>
         /// Performs an explicit conversion from <see cref="System.Decimal"/> to <see cref="Probability"/>.
         /// </summary>
         /// <param name="value">The value.</param>

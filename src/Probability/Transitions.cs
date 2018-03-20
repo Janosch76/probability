@@ -15,7 +15,7 @@
         /// <returns>The state transition, returning a point distribution on the unique state reached.</returns>
         public static Func<T, Dist<T>> Certainly<T>(Func<T, T> transition)
         {
-            return v => Spread.Certainly(transition(v));
+            return v => Distribution.Certainly(transition(v));
         }
 
         /// <summary>

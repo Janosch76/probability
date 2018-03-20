@@ -5,9 +5,9 @@
     using System.Linq;
 
     /// <summary>
-    /// Factory methods to create specific distributions
+    /// Extension methods and static methods to create specific distributions
     /// </summary>
-    public static class Spread
+    public static class Distribution
     {
         /// <summary>
         /// Empty distribution on a given space.
@@ -38,7 +38,7 @@
         /// <returns>A uniform distribution.</returns>
         public static Dist<T> Uniform<T>(params T[] values)
         {
-            return Spread.Uniform<T>(values.ToList());
+            return Distribution.Uniform<T>(values.ToList());
         }
 
         /// <summary>
@@ -60,7 +60,7 @@
         /// <returns>Bernoulli distribution with the specified probability.</returns>
         public static Dist<int> Bernoulli(Probability p)
         {
-            return Spread.OneOf(1, 0, p);
+            return Distribution.OneOf(1, 0, p);
         }
 
         /// <summary>
@@ -69,7 +69,7 @@
         /// <returns>Rademacher distribution.</returns>
         public static Dist<int> Rademacher()
         {
-            return Spread.OneOf(1, -1);
+            return Distribution.OneOf(1, -1);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@
         /// <returns>A uniform distribution.</returns>
         public static Dist<T> OneOf<T>(T value1, T value2)
         {
-            return Spread.OneOf(value1, value2, new Probability(0.5M));
+            return Distribution.OneOf(value1, value2, new Probability(0.5M));
         }
 
         /// <summary>
@@ -104,7 +104,7 @@
         /// <returns>Binomial distribution for the given parameters.</returns>
         public static Dist<int> Binomial(int experiments)
         {
-            return Spread.Binomial(experiments, new Probability(.5M));
+            return Distribution.Binomial(experiments, new Probability(.5M));
         }
 
         /// <summary>
