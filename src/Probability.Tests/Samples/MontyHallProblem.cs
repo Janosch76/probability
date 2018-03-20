@@ -50,7 +50,7 @@
 
         [Sample]
         [TestMethod]
-        public void AnalyzeStrategies()
+        public void MontyHallStrategies()
         {
             var probStay = Play(keepSelected).ProbabilityOf(s => s.IsWinningState);
             AssertEqualProbabilities(.33, probStay, .01);
