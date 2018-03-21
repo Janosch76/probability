@@ -53,6 +53,7 @@
     <Compile Include="Samples\MontyHallProblem.cs" />
     <Compile Include="Samples\SampleAttribute.cs" />
     <Compile Include="UnitTests\BernoulliDistributionTests.cs" />
+    <Compile Include="UnitTests\HypergeometricDistributionTests.cs" />
     <Compile Include="UnitTests\BinomailDistributionTests.cs" />
     <Compile Include="UnitTests\PointDistributionTests.cs" />
     <Compile Include="UnitTests\DistributionCombinatorsTests.cs" />

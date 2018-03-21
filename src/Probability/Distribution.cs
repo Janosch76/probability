@@ -108,7 +108,8 @@
         }
 
         /// <summary>
-        /// Binomial distribution with (discrete probability distribution of the number of successes in a sequence of independent yes/no experiments).
+        /// Binomial distribution (discrete probability distribution of 
+        /// the number of successes in a sequence of independent yes/no experiments).
         /// </summary>
         /// <param name="experiments">The number of experiments.</param>
         /// <param name="prob">The probability of a successful experiment.</param>
@@ -142,7 +143,55 @@
             }
 
             var values = Enumerable.Range(0, experiments + 1)
-                .Select(k => new ProbValue<int>(k, new Probability(binomials[k] * p[k] * q[experiments - k])));
+                .Select(k => new Probability(binomials[k] * p[k] * q[experiments - k]))
+                .Select((probability, k) => new ProbValue<int>(k, probability));
+            return new Dist<int>(values);
+        }
+
+        /// <summary>
+        /// Hypergeometric distribution (probability of a particular number of successes
+        /// within a specified number of experiments, where each experiment consists of selecting 
+        /// a distinct object from a finite population that contains a known number of objects 
+        /// with the desired property.
+        /// </summary>
+        /// <param name="experiments">The number of experiments.</param>
+        /// <param name="populationSize">The size of the population.</param>
+        /// <param name="successPopulationSize">The number of success states in the population.</param>
+        /// <returns>The hypergeometric distribution for the given parameters.</returns>
+        public static Dist<int> Hypergeometric(int experiments, int populationSize, int successPopulationSize)
+        {
+            if (experiments < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(experiments));
+            }
+
+            if (populationSize < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(populationSize));
+            }
+
+            if (successPopulationSize < 0 || successPopulationSize > populationSize)
+            {
+                throw new ArgumentOutOfRangeException(nameof(successPopulationSize));
+            }
+
+            var binomial = new int[populationSize + 1, populationSize + 1];
+            binomial[0, 0] = 1;
+            for (int n = 1; n <= populationSize; n++)
+            {
+                binomial[n, 0] = binomial[n, n] = 1;
+                for (int k = 1; k < (n / 2) + 1; k++)
+                {
+                    binomial[n, k] = binomial[n, n - k] = binomial[n - 1, k - 1] + binomial[n - 1, k];
+                }
+            }
+
+            var minObservableSuccesses = Math.Max(0, experiments + successPopulationSize - populationSize);
+            var maxObservableSuccesses = Math.Min(experiments, successPopulationSize);
+            var permutations = binomial[populationSize, experiments];
+            var values = Enumerable.Range(minObservableSuccesses, maxObservableSuccesses - minObservableSuccesses + 1)
+                .Select(k => new Probability((decimal)(binomial[successPopulationSize, k] * binomial[populationSize - successPopulationSize, experiments - k]) / (decimal)permutations))
+                .Select((probability, k) => new ProbValue<int>(minObservableSuccesses + k, probability));
             return new Dist<int>(values);
         }
     }
