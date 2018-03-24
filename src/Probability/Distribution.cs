@@ -194,5 +194,25 @@
                 .Select((probability, k) => new ProbValue<int>(minObservableSuccesses + k, probability));
             return new Dist<int>(values);
         }
+
+        /// <summary>
+        /// Averages the specified distribution.
+        /// </summary>
+        /// <param name="distribution">The distribution.</param>
+        /// <returns>The expected value for the given distribution.</returns>
+        public static decimal Average(this Dist<int> distribution)
+        {
+            return distribution.Average(v => v);
+        }
+
+        /// <summary>
+        /// Averages the specified distribution.
+        /// </summary>
+        /// <param name="distribution">The distribution.</param>
+        /// <returns>The expected value for the given distribution.</returns>
+        public static decimal Average(this Dist<decimal> distribution)
+        {
+            return distribution.Average(v => v);
+        }
     }
 }

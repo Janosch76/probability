@@ -67,5 +67,14 @@
 
             AssertEqualProbabilities(.5, d.ProbabilityOf(v => v == 4));
         }
+
+        [UnitTest]
+        [TestMethod]
+        public void DistributionAveraging()
+        {
+            var d = Distribution.Uniform(1, 2, 3, 4, 5, 6);
+
+            Assert.AreEqual(3.5, (double)d.Average(), .001);
+        }
     }
 }

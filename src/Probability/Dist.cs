@@ -103,6 +103,17 @@
             return new Dist<T>(values);
         }
 
+        public decimal Average(Func<T, decimal> selector)
+        {
+            var avg = 0M;
+            foreach (var pv in this.values)
+            {
+                avg += pv.Probability * selector(pv.Value);
+            }
+
+            return avg;
+        }
+
         public bool Any()
         {
             return Any(v => true);
