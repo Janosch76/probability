@@ -49,6 +49,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Samples\Birthdays.cs" />
     <Compile Include="Samples\LinqSyntax.cs" />
     <Compile Include="Samples\MontyHallProblem.cs" />
     <Compile Include="Samples\SampleAttribute.cs" />

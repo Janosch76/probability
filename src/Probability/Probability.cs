@@ -67,6 +67,18 @@
         }
 
         /// <summary>
+        /// Implements the complement operator !.
+        /// </summary>
+        /// <param name="p">The probability.</param>
+        /// <returns>
+        /// The complement of the given probability.
+        /// </returns>
+        public static Probability operator !(Probability p)
+        {
+            return Probability.FromDecimal(1M - p.value);
+        }
+
+        /// <summary>
         /// Implements the multiplication operator *.
         /// </summary>
         /// <param name="p1">The first probability.</param>
