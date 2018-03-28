@@ -48,6 +48,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\Birthdays.cs" />
     <Compile Include="Samples\LinqSyntax.cs" />

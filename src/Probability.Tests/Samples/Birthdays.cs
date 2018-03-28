@@ -12,7 +12,7 @@
     [TestClass]
     public class Birthdays : TestBase
     {
-        private const int maxGroupSize = 100;
+        private const int MAXGROUPSIZE = 100;
 
         [Sample]
         [TestMethod]
@@ -43,17 +43,17 @@
 
         private static Probability[] ComputeProbabilitiesOfSharedBirthdays()
         {
-            var probOfSharedBirthdays = new Probability[maxGroupSize];
+            var probOfSharedBirthdays = new Probability[MAXGROUPSIZE];
 
             var numberOfDistinctBirthdays = Distribution.Certainly<int>(0);
-            int i = 0;
+            int groupSize = 0;
             do
             {
-                var probabilityOfNoSharedBirthday = numberOfDistinctBirthdays.ProbabilityOf(k => k == i);
-                probOfSharedBirthdays[i] = !probabilityOfNoSharedBirthday;
+                var probabilityOfNoSharedBirthday = numberOfDistinctBirthdays.ProbabilityOf(k => k == groupSize);
+                probOfSharedBirthdays[groupSize] = !probabilityOfNoSharedBirthday;
                 numberOfDistinctBirthdays = numberOfDistinctBirthdays.SelectMany(NextBirthday);
-                i++;
-            } while (i < maxGroupSize);
+                groupSize++;
+            } while (groupSize < MAXGROUPSIZE);
 
             return probOfSharedBirthdays;
         }
